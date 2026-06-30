@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faktorzerlegung von Polynomgleichungen Teil 2</title>
+    <!-- MathJax for rendering LaTeX -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --primary-color: #0056b3;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --task-bg: #eef2ff;
+            --task-border: #c7d2fe;
+            --solution-bg: #f0fdf4;
+            --solution-border: #bbf7d0;
+            --btn-hover: #004494;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            height: 6px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #ff9800;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .content-area {
+            padding: 30px;
+        }
+
+        .step-title {
+            color: var(--primary-color);
+            font-size: 20px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .explanation {
+            font-size: 16px;
+            margin-bottom: 25px;
+        }
+
+        .task-box {
+            background-color: var(--task-bg);
+            border-left: 5px solid #4f46e5;
+            padding: 15px 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .task-label {
+            font-weight: bold;
+            color: #4338ca;
+            text-transform: uppercase;
+            font-size: 12px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .solution-box {
+            background-color: var(--solution-bg);
+            border-left: 5px solid #22c55e;
+            padding: 15px 20px;
+            border-radius: 4px;
+            margin-bottom: 25px;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .solution-label {
+            font-weight: bold;
+            color: #15803d;
+            text-transform: uppercase;
+            font-size: 12px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: var(--btn-hover);
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        #btn-next {
+            display: none;
+            background-color: #ff9800;
+            color: #fff;
+        }
+
+        #btn-next:hover {
+            background-color: #e68a00;
+        }
+
+        .step-counter {
+            font-size: 14px;
+            color: #666;
+            font-weight: bold;
+        }
+
+        .math-block {
+            margin: 15px 0;
+            font-size: 110%;
+        }
+
+        .completed-message {
+            text-align: center;
+            display: none;
+            padding: 40px 20px;
+        }
+
+        .completed-message h2 {
+            color: #22c55e;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="app-container">
+    <header>
+        <h1>Faktorzerlegung von Polynomgleichungen Teil 2</h1>
+        <div style="font-size: 14px; opacity: 0.8; margin-top: 5px;">Interaktives Lernprogramm (Gleichungen 4. Grades)</div>
+    </header>
+    
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="content-area" id="learning-area">
+        <h2 class="step-title" id="step-title">Lade Schritt...</h2>
+        
+        <div class="explanation" id="explanation"></div>
+        
+        <div class="task-box" id="task-box">
+            <span class="task-label">Aufgabe</span>
+            <div id="task-content"></div>
+        </div>
+
+        <div class="solution-box" id="solution-box">
+            <span class="solution-label">Lösung</span>
+            <div id="solution-content"></div>
+        </div>
+
+        <div class="controls">
+            <span class="step-counter" id="step-counter">Schritt 1 / X</span>
+            <div class="button-group">
+                <button id="btn-solution" onclick="showSolution()">Lösung anzeigen</button>
+                <button id="btn-next" onclick="nextStep()">Nächster Schritt &rarr;</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="completed-message" id="completed-message">
+        <h2>🎉 Glückwunsch!</h2>
+        <p>Du hast auch den zweiten Teil des Lernprogramms erfolgreich durchgearbeitet.</p>
+        <button onclick="restartProgram()" style="margin-top: 20px; background-color: #4f46e5;">Programm neustarten</button>
+    </div>
+</div>
+
+<script>
+    const steps = [{"title": "Schritt 1: Einfaches Ausklammern", "content": "Wir wollen den Term \\( x^4 - 6x^3 - 16x^2 \\) faktorisieren.<br><br>1. Schritt: Man l\u00f6st die Nullstellen-Gleichung \\( x^4 - 6x^3 - 16x^2 = 0 \\).<br>Dazu klammert man \\( x^2 \\) aus: \\( x^2(x^2 - 6x - 16) = 0 \\).<br>Ein Nullprodukt bedeutet, dass jeder Faktor 0 werden kann:<br>1. Faktor: \\( x^2 = 0 \\implies x_1 = 0 \\) (doppelte L\u00f6sung).<br>2. Faktor: \\( x^2 - 6x - 16 = 0 \\).<br>Mit der L\u00f6sungsformel erh\u00e4lt man \\( x_2 = 8 \\) und \\( x_3 = -2 \\).<br><br>2. Schritt: Bestimme die L\u00f6sungsterme:<br>Zu \\( x = 8 \\) geh\u00f6rt \\( (x - 8) \\).<br>Zu \\( x = -2 \\) geh\u00f6rt \\( (x + 2) \\).<br><br>3. Schritt: Alle Faktoren zusammensetzen:<br>Ergebnis: \\( x^4 - 6x^3 - 16x^2 = x^2(x + 2)(x - 8) \\).", "task": "Faktorisiere auf \u00e4hnliche Weise den Term \\( x^4 - 196x^2 \\).", "solution": "Ausklammern von \\( x^2 \\) liefert \\( x^2(x^2 - 196) = 0 \\).<br>1. Faktor: \\( x^2 = 0 \\implies x_1 = 0 \\) (doppelt).<br>2. Faktor: \\( x^2 - 196 = 0 \\implies x^2 = 196 \\implies x_{2,3} = \\pm 14 \\).<br>Die L\u00f6sungsterme sind \\( x^2 \\), \\( (x - 14) \\) und \\( (x + 14) \\).<br>Ergebnis: \\( x^4 - 196x^2 = x^2(x - 14)(x + 14) \\)."}, {"title": "Schritt 2: Wenn der quadratische Faktor keine Nullstellen hat", "content": "Wie du gesehen hast, ist \\( x^4 - 196x^2 = x^2(x - 14)(x + 14) \\).<br>Manchmal l\u00e4sst sich der \u00fcbrig bleibende Klammerterm aber nicht weiter in Linearfaktoren zerlegen.", "task": "Faktorisiere nun den Term \\( 2x^4 - 4x^3 + 10x^2 \\).", "solution": "1. L\u00f6se \\( 2x^4 - 4x^3 + 10x^2 = 0 \\).<br>Ausklammern von \\( 2x^2 \\): \\( 2x^2(x^2 - 2x + 5) = 0 \\).<br>1. Faktor: \\( 2x^2 = 0 \\implies x_1 = 0 \\) (doppelt).<br>2. Faktor: \\( x^2 - 2x + 5 = 0 \\).<br>Die Diskriminante unter der Wurzel ist negativ (\\( 4 - 20 = -16 \\)). Der quadratische Klammerterm hat somit keine Nullstellen in den reellen Zahlen und kann nicht weiter faktorisiert werden.<br>Ergebnis: \\( 2x^4 - 4x^3 + 10x^2 = 2x^2(x^2 - 2x + 5) \\)."}, {"title": "Schritt 3: Biquadratische Terme", "content": "Man nennt Terme der Form \\( ax^4 + bx^2 + c \\) <b>biquadratisch</b> (zweifach quadratisch). Das Merkmal sind die geraden \\( x \\)-Potenzen.<br>Man l\u00f6st sie durch <b>Substitution</b> \\( u = x^2 \\), wodurch eine quadratische Gleichung f\u00fcr \\( u \\) entsteht.", "task": "Faktorisiere den Term \\( x^4 - 12x^2 + 32 \\).", "solution": "1. Substitution \\( u = x^2 \\): \\( u^2 - 12u + 32 = 0 \\).<br>Die L\u00f6sungen f\u00fcr \\( u \\) sind \\( u_1 = 8 \\) und \\( u_2 = 4 \\).<br>2. R\u00fccksubstitution:<br>Aus \\( u_1 = x^2 = 8 \\implies x_{1,2} = \\pm \\sqrt{8} \\).<br>Aus \\( u_2 = x^2 = 4 \\implies x_{3,4} = \\pm 2 \\).<br>Damit gelingt die Faktorisierung: \\( (x - \\sqrt{8})(x + \\sqrt{8})(x - 2)(x + 2) \\)."}, {"title": "Schritt 4: Biquadratisch mit unl\u00f6sbaren Faktoren", "content": "Wir haben gesehen, dass die R\u00fccksubstitution manchmal unl\u00f6sbare Ausdr\u00fccke liefern kann, falls \\( u \\) negativ ist (z. B. \\( x^2 = -9 \\)). Dann bleibt der quadratische Faktor unzerlegt stehen.", "task": "Faktorisiere den Term \\( 2x^4 + 8x^2 - 90 \\).<br><i>(Hinweis: Teile die Gleichung vor der Substitution durch 2, aber vergiss den Vorfaktor am Ende nicht!)</i>", "solution": "Gleichung durch 2 teilen: \\( x^4 + 4x^2 - 45 = 0 \\).<br>Substitution \\( u = x^2 \\implies u^2 + 4u - 45 = 0 \\).<br>Die L\u00f6sungen sind \\( u_1 = 5 \\) und \\( u_2 = -9 \\).<br>R\u00fccksubstitution:<br>1. Faktor: \\( x^2 = 5 \\implies x_{1,2} = \\pm \\sqrt{5} \\).<br>2. Faktor: \\( x^2 = -9 \\) (keine reelle L\u00f6sung!).<br>Faktorisierung: \\( 2x^4 + 8x^2 - 90 = 2(x - \\sqrt{5})(x + \\sqrt{5})(x^2 + 9) \\)."}, {"title": "Schritt 5: Nur quadratische Faktoren", "content": "Das Ergebnis des vorherigen Schrittes lautete \\( 2(x - \\sqrt{5})(x + \\sqrt{5})(x^2 + 9) \\). Der zweite Faktor (\\( x^2 + 9 \\)) hat keine Nullstellen und kann daher auch nicht weiter faktorisiert werden.", "task": "Faktorisiere den Term \\( \\frac{1}{2}x^4 + \\frac{13}{2}x^2 + 18 \\).", "solution": "1. Nullstellen-Gleichung mit 2 multiplizieren: \\( x^4 + 13x^2 + 36 = 0 \\).<br>2. Substitution \\( u = x^2 \\implies u^2 + 13u + 36 = 0 \\).<br>Die L\u00f6sungen sind \\( u_1 = -4 \\) und \\( u_2 = -9 \\).<br>3. R\u00fccksubstitution: \\( x^2 = -4 \\) und \\( x^2 = -9 \\). Beide haben keine reellen L\u00f6sungen.<br>Der Term kann nur so faktorisiert werden: \\( \\frac{1}{2}(x^2 + 4)(x^2 + 9) \\). Das sind keine Linearfaktoren, weil sie Quadrate enthalten."}, {"title": "Schritt 6: Vollst\u00e4ndige Gleichungen 4. Grades", "content": "Wenn in einem Polynom ein Absolutglied vorhanden ist, k\u00f6nnen wir kein \\( x \\) ausklammern. Wir m\u00fcssen eine <b>Probierl\u00f6sung</b> erraten und eine <b>Polynomdivision</b> durchf\u00fchren.<br>Betrachten wir \\( x^4 + 5x^3 - 20x - 16 = 0 \\).", "task": "Zeige, dass \\( x_1 = 2 \\) eine L\u00f6sung ist. Welcher Term bleibt nach der Abspaltung des zugeh\u00f6rigen Linearfaktors \\( (x - 2) \\) \u00fcbrig?", "solution": "Probe f\u00fcr \\( x = 2 \\): \\( 2^4 + 5(2^3) - 20(2) - 16 = 16 + 40 - 40 - 16 = 0 \\).<br>Polynomdivision: \\( (x^4 + 5x^3 - 20x - 16) : (x - 2) = x^3 + 7x^2 + 14x + 8 \\).<br>Wir haben also bisher: \\( (x - 2)(x^3 + 7x^2 + 14x + 8) = 0 \\)."}, {"title": "Schritt 7: Zweite Abspaltung", "content": "Wir haben die Gleichung so weit zerlegt: \\( (x - 2)(x^3 + 7x^2 + 14x + 8) = 0 \\).<br>Man ben\u00f6tigt eine weitere Abspaltung, weil in der zweiten Klammer noch der Grad 3 vorhanden ist.", "task": "Best\u00e4tige die n\u00e4chste Probierl\u00f6sung \\( x_2 = -1 \\) f\u00fcr den kubischen Term \\( x^3 + 7x^2 + 14x + 8 \\) und spalte den entsprechenden Linearfaktor ab!", "solution": "Probe f\u00fcr \\( x = -1 \\): \\( (-1)^3 + 7(-1)^2 + 14(-1) + 8 = -1 + 7 - 14 + 8 = 0 \\).<br>Polynomdivision: \\( (x^3 + 7x^2 + 14x + 8) : (x + 1) = x^2 + 6x + 8 \\).<br>Wir haben nun: \\( (x - 2)(x + 1)(x^2 + 6x + 8) = 0 \\)."}, {"title": "Schritt 8: Restterm faktorisieren", "content": "Nach zwei Polynomdivisionen bleibt ein quadratischer Term \u00fcbrig: \\( (x - 2)(x + 1)(x^2 + 6x + 8) \\).", "task": "Bringe die Faktorisierung zu Ende, indem du den quadratischen Term \\( x^2 + 6x + 8 \\) zerlegst.", "solution": "Die Nullstellen von \\( x^2 + 6x + 8 = 0 \\) sind \\( x_3 = -2 \\) und \\( x_4 = -4 \\).<br>Dieser Term kann geschrieben werden als \\( (x + 2)(x + 4) \\).<br>Ergebnis der vollst\u00e4ndigen Faktorisierung: \\( (x - 2)(x + 1)(x + 2)(x + 4) \\).<br>Die L\u00f6sungsmenge der Gleichung ist \\( \\{-4; -2; -1; 2\\} \\)."}, {"title": "Schritt 9: Der schnelle Weg mit quadratischem Divisor", "content": "Da man bei einem Term 4. Grades ohnehin zweimal eine L\u00f6sungsklammer herausdividieren muss, ist dies schneller erledigt, wenn man die beiden erratenen Linearfaktoren zuerst multipliziert und dann nur eine <b>einzige</b> Polynomdivision durch diesen quadratischen Term macht!<br>Beispiel von eben: Die Probierl\u00f6sungen waren \\( 2 \\) und \\( -1 \\).<br>Das Produkt ist \\( (x - 2)(x + 1) = x^2 - x - 2 \\).<br>Man rechnet dann direkt in einem Schritt: \\( (x^4 + 5x^3 - 20x - 16) : (x^2 - x - 2) = x^2 + 6x + 8 \\).", "task": "Versuche das bei \\( 2x^4 + 3x^3 - 12x^2 - 7x + 6 \\).<br>Tipp: Finde zwei Probierl\u00f6sungen (z.B. aus der Menge \\(\\{\\pm 1, \\pm 2\\}\\)), bilde deren Produkt und teile den Term durch dieses quadratische Polynom.", "solution": "Probierl\u00f6sungen sind z. B. \\( x_1 = -1 \\) und \\( x_2 = 2 \\).<br>Das Produkt der zugeh\u00f6rigen Linearfaktoren ist \\( (x + 1)(x - 2) = x^2 - x - 2 \\).<br>Polynomdivision: \\( (2x^4 + 3x^3 - 12x^2 - 7x + 6) : (x^2 - x - 2) = 2x^2 + 5x - 3 \\)."}, {"title": "Schritt 10: Den Vorfaktor bei 4. Grad nicht vergessen", "content": "Nach der Polynomdivision aus Schritt 9 haben wir: \\( 2x^4 + 3x^3 - 12x^2 - 7x + 6 = (x + 1)(x - 2)(2x^2 + 5x - 3) \\).", "task": "Faktorisiere den verbleibenden quadratischen Term \\( 2x^2 + 5x - 3 \\) und notiere die endg\u00fcltige Faktorisierung.", "solution": "L\u00f6se \\( 2x^2 + 5x - 3 = 0 \\). Die Mitternachtsformel liefert \\( x_3 = \\frac{1}{2} \\) und \\( x_4 = -3 \\).<br>Die Linearfaktoren sind \\( (x - \\frac{1}{2}) \\) und \\( (x + 3) \\).<br>Da vor dem \\( x^4 \\) urspr\u00fcnglich eine 2 stand, lautet die komplette Zerlegung: \\( 2(x + 1)(x - 2)(x - \\frac{1}{2})(x + 3) \\)."}, {"title": "Schritt 11: Alternative Schreibweise", "content": "Die Faktorzerlegung lautet \\( 2(x + 1)(x - 2)(x - \\frac{1}{2})(x + 3) \\).<br>Um den Bruch zu vermeiden, kann man den Vorfaktor 2 auch direkt in die Klammer mit dem Bruch hineinmultiplizieren: \\( 2 \\cdot (x - \\frac{1}{2}) = (2x - 1) \\).", "task": "Schreibe die Faktorisierung bruchfrei auf. Wie geht es danach weiter?", "solution": "Die bruchfreie Faktorisierung lautet: \\( (x + 1)(x - 2)(2x - 1)(x + 3) \\).<br>Mache dich nun bereit f\u00fcr die zwei Abschlussaufgaben im letzten Schritt!"}, {"title": "Schritt 12: \u00dcbungsaufgaben zum Abschluss", "content": "Damit ist unsere \u00dcbungsstunde zur Faktorisierung von Termen 4. Grades zu Ende. Wende nun dein ganzes Wissen an.", "task": "Faktorisiere die beiden folgenden Terme vollst\u00e4ndig:<br>(1) \\( x^4 + 4x^3 + x^2 - 12x - 12 \\)<br>(2) \\( x^4 - x^3 + x^2 - 3x - 6 \\)", "solution": "<b>L\u00f6sung zu (1):</b> Probierl\u00f6sung \\( x = -2 \\) (ist eine doppelte Nullstelle, also durch \\( (x+2)^2 = x^2+4x+4 \\) teilen).<br>Ergebnis: \\( (x+2)^2(x^2-3) = (x+2)^2(x - \\sqrt{3})(x + \\sqrt{3}) \\).<br><br><b>L\u00f6sung zu (2):</b> Probierl\u00f6sungen \\( x = -1 \\) und \\( x = 2 \\).<br>Das ergibt die Klammern \\( (x+1)(x-2) \\). Die Division liefert den unzerlegbaren Rest \\( (x^2+3) \\).<br>Ergebnis: \\( (x+1)(x-2)(x^2+3) \\)."}];
+
+    let currentStep = 0;
+
+    function renderStep() {
+        const step = steps[currentStep];
+        
+        document.getElementById('step-title').innerHTML = step.title;
+        document.getElementById('explanation').innerHTML = step.content;
+        document.getElementById('task-content').innerHTML = step.task;
+        document.getElementById('solution-content').innerHTML = step.solution;
+        
+        document.getElementById('step-counter').innerText = `Schritt ${currentStep + 1} von ${steps.length}`;
+        
+        const progress = ((currentStep) / steps.length) * 100;
+        document.getElementById('progress-bar').style.width = `${progress}%`;
+
+        const solBox = document.getElementById('solution-box');
+        solBox.style.display = 'none';
+        solBox.style.opacity = '0';
+        
+        document.getElementById('btn-solution').style.display = 'inline-block';
+        document.getElementById('btn-next').style.display = 'none';
+
+        if (window.MathJax) {
+            MathJax.typesetPromise([document.getElementById('learning-area')]).catch(function (err) {
+                console.log('MathJax error: ', err.message);
+            });
+        }
+    }
+
+    function showSolution() {
+        const solBox = document.getElementById('solution-box');
+        solBox.style.display = 'block';
+        
+        setTimeout(() => {
+            solBox.style.opacity = '1';
+        }, 10);
+
+        document.getElementById('btn-solution').style.display = 'none';
+        
+        const btnNext = document.getElementById('btn-next');
+        btnNext.style.display = 'inline-block';
+        
+        if (currentStep === steps.length - 1) {
+            btnNext.innerText = "Programm abschließen";
+        } else {
+            btnNext.innerHTML = "Nächster Schritt &rarr;";
+        }
+    }
+
+    function nextStep() {
+        if (currentStep < steps.length - 1) {
+            currentStep++;
+            renderStep();
+        } else {
+            finishProgram();
+        }
+    }
+
+    function finishProgram() {
+        document.getElementById('progress-bar').style.width = '100%';
+        document.getElementById('learning-area').style.display = 'none';
+        document.getElementById('completed-message').style.display = 'block';
+    }
+
+    function restartProgram() {
+        currentStep = 0;
+        document.getElementById('learning-area').style.display = 'block';
+        document.getElementById('completed-message').style.display = 'none';
+        renderStep();
+    }
+
+    window.onload = renderStep;
+</script>
+</body>
+</html>
